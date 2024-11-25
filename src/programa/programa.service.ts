@@ -3,7 +3,7 @@ import { CreateProgramaDto } from './dto/create-programa.dto';
 import { UpdateProgramaDto } from './dto/update-programa.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Programa } from './entities/programa.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class ProgramaService {
@@ -30,8 +30,18 @@ export class ProgramaService {
     return this.programaRepository.find({ relations: ['competencias'] });
   }
 
+  async findProgramasByIds( programasIds: number[]): Promise<Programa[]> {
+    return await this.programaRepository.find({
+      where: {
+        id: In(programasIds),
+      },
+    
+    });
+  }
+
   //{ relations: ['competencias'] }
   findOne(id: number): Promise<Programa> {
+    
     return this.programaRepository.findOne({ where: { id },  relations: ['competencias'] });
   }
  //

@@ -15,10 +15,23 @@ import { AuthModule } from './auth/auth.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { RolesModule } from './roles/roles.module';
 import { RoleSeedModule } from './roles/rol-seed.module';
+import { join } from 'path';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { ProgramasInstructorModule } from './programas-instructor/programas-instructor.module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'templates'),
+      serveRoot: '/public/'
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     TypeOrmModule.forRoot({
+      
       type: 'mysql',
       host: 'localhost',
       port: 3306,
@@ -29,10 +42,12 @@ import { RoleSeedModule } from './roles/rol-seed.module';
     //  entities: [Programa, Competencia, Resultado, Archivo],
       synchronize: true,
     }),
+    
     ProgramaModule,
     CompetenciaModule,
     ResultadosModule,
     ProgramacompetenciaModule,
+    ProgramasInstructorModule,
     ArchivoModule,
     AuthModule,
     UsuariosModule,

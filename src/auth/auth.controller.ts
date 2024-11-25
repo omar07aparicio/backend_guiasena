@@ -6,17 +6,20 @@ import { LoginAuthDto } from './dto/login.dto';
 import { AuthGuard } from './auth.guard';
 import { RolesGuard } from 'src/roles/role-guard/role-guard.guard';
 import { Roles } from 'src/roles/decorator/role.decorator';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { emit } from 'process';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @UseGuards(RolesGuard)
-  @Roles('admin')
+  //@UseGuards(RolesGuard)
+  //@Roles('admin')
   Register(@Body() registerAuthDto: RegisterAuthDto) {
     return this.authService.register(registerAuthDto);
   }
+
 
   @Post('login')
   Login(@Body() loginAuthDto: LoginAuthDto) {

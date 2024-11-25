@@ -8,6 +8,8 @@ import { LoginAuthDto } from './dto/login.dto';
 import { RolesService } from 'src/roles/roles.service';
 import { ProgramaService } from 'src/programa/programa.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,7 @@ export class AuthService {
 
   ) {}
   async register(registerAuthDto: RegisterAuthDto) {
+    
     const user = await this.usuarioService.findByEmail(registerAuthDto.email);
     if (user) {
       throw new BadRequestException('Email already exists');
@@ -37,6 +40,7 @@ export class AuthService {
     });
   }
 
+
   async login(loginAuthDto: LoginAuthDto) {
    
     const user = await this.usuarioService.findByEmail(loginAuthDto.email);
@@ -44,6 +48,7 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
+  
     const isPasswordValid = await bcryptjs.compare(
       loginAuthDto.password,
       user.password,
@@ -64,6 +69,10 @@ export class AuthService {
     }
     return {
       access_token: token,
+      email:payload.email,
+      nombre:user.name,
+      cedula:user.cedula,
+      telefono:user.telefono,
       rol:payload.rol,
       id:payload.id
     };

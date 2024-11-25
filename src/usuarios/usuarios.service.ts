@@ -1,37 +1,33 @@
 
-import { Injectable, UseGuards } from '@nestjs/common';
+import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { Repository } from 'typeorm';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { RolesGuard } from 'src/roles/role-guard/role-guard.guard';
-import { Roles } from 'src/roles/decorator/role.decorator';
-import { ProgramaService } from 'src/programa/programa.service';
-import * as bcryptjs from 'bcryptjs';
 
-@UseGuards(AuthGuard,RolesGuard)
+import { ProgramaService } from 'src/programa/programa.service';
+
+import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+
+
+
 @Injectable()
 export class UsuariosService {
   constructor(
     @InjectRepository(Usuario) private userRepository: Repository<Usuario>,
-    private readonly programaService: ProgramaService
+    private readonly programaService: ProgramaService,
+   
   ) {}
 
-// @Roles('admin')
- async create(createUserDto: CreateUsuarioDto) {
-  const salt = await bcryptjs.genSalt(10); // Genera un salt
-  const password = await bcryptjs.hash(createUserDto.password , salt); // Encripta la contraseña
 
-  createUserDto.password = password
-  // Crear el usuario con la contraseña encriptada
-  
+ async create(createUserDto: CreateUsuarioDto) {
     const user = this.userRepository.create(createUserDto);
     return await this.userRepository.save(user);
   }
-
- @Roles('admin')
+ 
   async findAll() {
     const users = await this.userRepository.find({
       relations: ['programa', 'role'],
@@ -39,19 +35,23 @@ export class UsuariosService {
     });
     return users;
   }
+  
 
   async findProgramasAsignados(id: number) {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['programa'],
+      relations: ['programa', 'programa.competencias'],
     });
+    if (!user) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
     return user.programa;
   }
   async findProgramasNoAsignados(id: number) {
     // Obtener el usuario con los programas asignados
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['programa'],
+      relations: ['programa', 'programa.competencias'],
     });
   
     // Obtener todos los programas
@@ -78,8 +78,14 @@ export class UsuariosService {
     
     });
   }
-  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    return `This action updates a #${id} user`;
+async update( updateUserDto: UpdateUsuarioDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: updateUserDto.email },
+    });
+    console.log(user)
+    
+    Object.assign(user, updateUserDto);
+    return await this.userRepository.save(user);
   }
 
   remove(id: number) {

@@ -9,12 +9,12 @@ import { UsuariosService } from './usuarios.service';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 
 @Controller('usuarios')
-//@UseGuards(RolesGuard)
+@UseGuards(RolesGuard)
 export class UsuariosController {
   constructor(private readonly userService: UsuariosService) {}
 
   @Post()
- // @Roles('admin')
+  @Roles('admin')
   create(@Body() createUserDto: CreateUsuarioDto) {
     return this.userService.create(createUserDto);
   }
@@ -26,13 +26,13 @@ export class UsuariosController {
   }
 
   @Get(':id')
-  @Roles('admin', 'instructor')
+  @Roles('admin', 'instructor','coordinador')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
 
   @Get(':id/programas-asignados')
-  @Roles('admin', 'instructor')
+  @Roles('admin', 'instructor','coordinador')
   findProgramasAsignados(@Param('id') id: string) {
     return this.userService.findProgramasAsignados(+id);
   }
@@ -43,11 +43,11 @@ export class UsuariosController {
     return this.userService.findProgramasNoAsignados(+id);
   }
 
-  @Patch(':id')
-  @Roles('admin')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUsuarioDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
+  // @Patch(':id')
+  // @Roles('admin')
+  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUsuarioDto) {
+  //   return this.userService.update( updateUserDto);
+  // }
 
   @Delete(':id')
   @Roles('admin')

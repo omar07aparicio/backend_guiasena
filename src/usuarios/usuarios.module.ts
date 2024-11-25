@@ -8,11 +8,12 @@ import { UsuariosController } from './usuarios.controller';
 import { UsuariosService } from './usuarios.service';
 import { Usuario } from './entities/usuario.entity';
 
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([Usuario]),
     RolesModule,
-    ProgramaModule
+    ProgramaModule,
   ],
   controllers: [UsuariosController],
   providers: [UsuariosService],
